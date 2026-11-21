@@ -99,11 +99,37 @@ codex-session-pin  order 5  active   ← 新包的 client 半
 
 **仍待自然消解**：页面里那个旧的 `session-pin` occupant 要等 Host 真正重启才会从注册表消失。1.0.2 的隐藏规则让它在视觉上不可见，但注册表里仍会多一条。要彻底清干净，重启一次 DSH。
 
+## 重启后复核（2026-11-21 22:54）
+
+用户重启了 DSH。`Slots.listSubTree` 复核 `conversation.session.header.utilities` 的 occupants：
+
+```
+open-in-app, schedule-catalog, dsh-find-all, session-log-download,
+codex-session-pin, conversation-navigator-toggle, dsh-btw-header, turn-navigator
+```
+
+`session-pin` **已消失**，只剩 `codex-session-pin` 一个。重复图钉的根因确认消除。
+
+其余复核：
+
+| 项 | 结果 |
+| --- | --- |
+| Host 进程 | 全部启于 `22:52:56`（真重启，不是重载页面） |
+| GUI 端口 | `63954`（旧的是 `53122`，端口变化也证明进程重启） |
+| 安装版本 | `1.0.2` |
+| 旧路由 `/session-pin/state` | 404 |
+| 新路由 `/codex-session-pin/state` | 200，9 条置顶原样 |
+| 旧包 `node_modules/dsh-session-pin` | 不存在 |
+| 旧诊断文件 `~/.dsh/session-pin/diag.jsonl` | 最后写入 `12:50`，之后 10 小时无写入 → 旧 client 半确实不再运行 |
+
+隐藏规则的安全性也复核过：扫描 `node_modules` 下**除本包外**的所有 JS/MJS/CSS，没有任何插件使用 `dsp-mark` / `dsp-pin-btn` / `data-dsp-*`，所以那条 `display:none!important` 不会误伤别人（也查过 PerryLink 的 `dsh-session-pin@0.7.21`，它用的是 `data-board` / `data-color` / `data-session-id` 等，不冲突）。
+
 ## 待办（定时任务会推进）
 
 - [ ] 等 `2026-11-22T05:46:36Z` 之后提 PR：`data/plugins/yhm138__dsh-codex-session-pin.yml`
 - [ ] 跟进 PR CI 与 reviewer 意见
 - [ ] 收录后停掉定时任务
+- [ ] 可在下个版本移除那条 `data-dsp-*` 隐藏规则（只为兼容改名前的旧页面，已无必要）
 
 ## 文件位置
 
