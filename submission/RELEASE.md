@@ -59,6 +59,46 @@
 
 结果：`node_modules/dsh-codex-session-pin` 是真实目录（`LinkType` 为空），profile 里记为 `^1.0.0`，源码目录 18 个文件完好。
 
+## 1.0.2：重复图钉事故（用户报告）
+
+**现象**：改了名之后重新进入，Session 左侧出现两个图钉，悬浮时右侧也出现两个。
+
+**根因（已证实）**：不是新插件重复注入，而是**新旧两个 client 半同时活在同一个页面里**。`Slots.listSubTree` 给出决定性证据——`conversation.session.header.utilities` 里同时存在两个 occupant：
+
+```
+session-pin        order 5  active   ← 旧包（改名前的 dsh-session-pin）的 client 半
+codex-session-pin  order 5  active   ← 新包的 client 半
+```
+
+两者的 DOM 前缀不同（旧 `data-dsp-*`，新 `data-dcsp-*`），所以各自注入一个标记和一个按钮，互不识别 → 各显示一份。
+
+**为什么「重进」没有解决**：Host 进程自 11/20 20:44 起连续运行，从未重启。页面虽然重载，但 Host 侧的加载器/客户端模块图没有给出真正的重启语义；旧 client 模块仍在页面内存里。
+
+**根因残留物**：`node_modules/dsh-session-pin` 是一个指向工作区旧目录的 **junction**，`remove_bundle` 清掉了依赖项与 bundle 行，但没有删掉这个链接。已用 `cmd /c rmdir` 删除（只删链接，源码目录 11 个文件完好）。
+
+**1.0.2 的两处修改**：
+
+1. `client.js` 的样式表隐藏旧前缀产物。旧的图钉按钮、标记、菜单项、标题栏按钮一律 `display:none!important`：
+   ```css
+   .dsp-mark,.dsp-pin-btn,[data-dsp-mark],[data-dsp-pin],[data-dsp-header],[data-dsp-menu]{display:none!important}
+   ```
+   这是幂等的：无论旧 client 半是否还活着、是否又重新注入，都看不见第二份。重载页面后旧半彻底消失，这条规则自然失效。
+
+2. **`index.js` 不再 `import` schemastery**。这是安装 1.0.1 时暴露的真缺陷：Host 插件是**直接从包目录 import** 的，那个目录没有 `node_modules`，于是报
+   `ERR_MODULE_NOT_FOUND: Cannot find package '@deepseek-ai/schemastery'`，实例直接不激活。改成从行配置里防御式读 `probe`，并在一个**没有 node_modules 的空目录**里验证过能正常加载（`isolated load OK, exports: apply,inject`）。
+
+**验证**（1.0.2 装机后）：
+
+- `node_modules/dsh-codex-session-pin` = `1.0.2`，profile 依赖记为 `1.0.2`，`application: applied`
+- 旧包 `dsh-session-pin` 已不存在于 `node_modules`
+- `/codex-session-pin/state` → 200，置顶 9 条原样保留
+- `/codex-session-pin/diag` 与 `/command` → 204（probe 默认关闭）
+- 旧路由 `/session-pin/state` → 404（旧 Host 半确实没跑）
+- 离线 harness：`apply.ok:true, teardown:"ok"`
+- npm `latest` = `1.0.2`
+
+**仍待自然消解**：页面里那个旧的 `session-pin` occupant 要等 Host 真正重启才会从注册表消失。1.0.2 的隐藏规则让它在视觉上不可见，但注册表里仍会多一条。要彻底清干净，重启一次 DSH。
+
 ## 待办（定时任务会推进）
 
 - [ ] 等 `2026-11-22T05:46:36Z` 之后提 PR：`data/plugins/yhm138__dsh-codex-session-pin.yml`
