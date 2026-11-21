@@ -32,7 +32,8 @@
     "README.md",
     "README.zh.md",
     "docs/*.md",
-    "LICENSE"
+    "LICENSE",
+    "assets"
   ],
   "repository": {
     "type": "git",
