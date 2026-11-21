@@ -20,7 +20,7 @@ window.__ModuleLoader__.load({
 
     const NS = 'codex-session-pin'
     // Bumped on every edit so a diagnostics report names the code that ran.
-    const BUILD = 'v12'
+    const BUILD = '1.0.2'
     const EMPTY_IDS = Object.freeze([])
     const ROW_SELECTOR = '[data-dcu-session]'
     const BODY_SELECTOR = '.dcu-wb-project-body'
@@ -45,6 +45,12 @@ window.__ModuleLoader__.load({
 .dcsp-mark{display:inline-flex;flex:none;align-items:center;justify-content:center;width:12px;height:12px;color:var(--dsw-alias-brand-primary);opacity:.9}
 .dcsp-pin-btn{color:inherit}
 .dcsp-pin-btn[data-dcsp-on="1"]{color:var(--dsw-alias-brand-primary)}
+/* Artifacts of the pre-release package name (dsh-session-pin, data-dsp-*): a page
+   that loaded it before this package was installed keeps that client half alive
+   beside this one, and the two draw a pin each. Hiding them here is idempotent and
+   makes a stale generation invisible without fighting it in the DOM; a reload
+   removes it outright. */
+.dsp-mark,.dsp-pin-btn,[data-dsp-mark],[data-dsp-pin],[data-dsp-header],[data-dsp-menu]{display:none!important}
 /* The extra attribute beats the sidebar's own display:block rule, and the open
    guard keeps a collapsed project collapsed. */
 ${BODY_SELECTOR}[data-open="true"][${ORDER_ATTR}]{display:flex;flex-direction:column}

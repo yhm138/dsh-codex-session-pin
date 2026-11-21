@@ -1,6 +1,6 @@
 {
   "name": "dsh-codex-session-pin",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "DeepSeek Harness plugin: adds pin/unpin to every Session and orders pinned Sessions first inside their project. Pin state is the official workspace pinnedSessionIds, so it survives restarts and never duplicates another plugin's index. Works even when a third-party sidebar (such as @michengai/dsh-codex-ui) replaces the shipped one.",
   "keywords": [
     "deepseek-harness",
@@ -59,8 +59,5 @@
         "@deepseek-ai/dsh-client-ui-workspace"
       ]
     }
-  },
-  "peerDependencies": {
-    "@deepseek-ai/schemastery": "^3.18.4"
   }
 }

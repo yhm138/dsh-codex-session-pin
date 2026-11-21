@@ -13,7 +13,6 @@
 import { mkdir, appendFile, readFile, rename, stat, truncate, unlink } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import z from '@deepseek-ai/schemastery'
 
 const STATE_DIR = join(homedir(), '.dsh', 'codex-session-pin')
 const DIAG_FILE = join(STATE_DIR, 'diag.jsonl')
@@ -23,10 +22,13 @@ const COMMAND_MAX_AGE_MS = 60_000
 
 export const inject = ['webServer']
 
-// The Loader validates a row's config against this schema at activation.
-export const Config = z.object({
-  probe: z.boolean(),
-})
+// No `Config` export on purpose: a plain Host bundle is loaded straight from its
+// package directory, which has no node_modules, so importing the Loader's schema
+// package would fail with ERR_MODULE_NOT_FOUND. The single option is read
+// defensively from the raw row config instead.
+function readProbe(raw) {
+  return raw !== undefined && raw !== null && raw.probe === true
+}
 
 /** Read a JSON body with a hard size cap; malformed input yields `{}`. */
 async function readJsonBody(req, limit = 8192) {
@@ -61,7 +63,7 @@ function asSessionId(value) {
 }
 
 export function apply(ctx, config) {
-  const probe = config !== undefined && config !== null && config.probe === true
+  const probe = readProbe(config)
   const disposers = []
   const registry = () => ctx.get('workspaceRegistry')
 
