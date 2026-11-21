@@ -45,6 +45,20 @@
 - `readEntries()` → 读到 1 条我们的条目，`url` / `category: session` / 中英描述齐全，无重复 url。
 - 生成的 README.md 与 README.zh.md 第 5449 行都是我们那一条。
 
+## 本机安装状态的坑（已处理）
+
+把本机从「本地 link」切到「npm 正式版」时，`install_bundle` 报 `ERR_PNPM_EPERM ... rename ..._tmp_ -> dsh-codex-session-pin`。原因：上一版是 `link:` 装的，`node_modules/dsh-codex-session-pin` 是一个指向工作区源码目录的 **junction**，pnpm 无法用 rename 覆盖它。
+
+处理方式（**顺序很重要**）：
+
+1. `remove_bundle` —— 依赖项与 bundle 行都清掉。
+2. 确认 junction 的目标就是那个源码目录，且目标文件数正常。
+3. `cmd /c rmdir "…\node_modules\dsh-codex-session-pin"` —— **只删 junction 本身**。
+   ⚠️ 绝对不要用 `Remove-Item -Recurse`：那会顺着链接把源码目录真删掉。
+4. 再 `install_bundle dsh-codex-session-pin`（不带路径）—— 从 npm 拉 1.0.0。
+
+结果：`node_modules/dsh-codex-session-pin` 是真实目录（`LinkType` 为空），profile 里记为 `^1.0.0`，源码目录 18 个文件完好。
+
 ## 待办（定时任务会推进）
 
 - [ ] 等 `2026-11-22T05:46:36Z` 之后提 PR：`data/plugins/yhm138__dsh-codex-session-pin.yml`
