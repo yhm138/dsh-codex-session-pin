@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Codex 会话置顶",
+    "description": "在会话标题栏或侧栏会话列表里置顶 / 取消置顶；置顶的会话排在所属项目最前面。第三方侧栏（如 @michengai/dsh-codex-ui）接管侧栏时同样可用。置顶数据就是官方工作区的 pinnedSessionIds，不另存一份。"
+  }
+}

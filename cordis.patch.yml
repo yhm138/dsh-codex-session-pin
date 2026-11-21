@@ -1,0 +1,18 @@
+# dsh-codex-session-pin: one row for the Host half (state / toggle routes, plus
+# the opt-in verification channel) and one for the browser half (Session header
+# toggle + sidebar pin buttons, menu row and pinned-first ordering).
+#
+# The pin data itself is the official Workspace `pinnedSessionIds`, so this
+# bundle never adds a second pin index.
+#
+# `probe` is intentionally absent: the diagnostic sink and the command channel
+# stay disabled for a normal install. Enable it temporarily in your own profile
+# patch layer when you need to verify the browser half from the Host side:
+#
+#   - id: codex-session-pin
+#     config:
+#       probe: true
+- insert:
+    - id: codex-session-pin
+      name: 'dsh-codex-session-pin'
+      config: {}

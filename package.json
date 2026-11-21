@@ -1,0 +1,65 @@
+{
+  "name": "dsh-codex-session-pin",
+  "version": "1.0.0",
+  "description": "DeepSeek Harness plugin: adds pin/unpin to every Session and orders pinned Sessions first inside their project. Pin state is the official workspace pinnedSessionIds, so it survives restarts and never duplicates another plugin's index. Works even when a third-party sidebar (such as @michengai/dsh-codex-ui) replaces the shipped one.",
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "dsh",
+    "session",
+    "pin",
+    "pinned",
+    "sidebar",
+    "codex-ui"
+  ],
+  "license": "MIT",
+  "author": "yhm138",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "README.zh.md",
+    "docs/*.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yhm138/dsh-codex-session-pin.git"
+  },
+  "homepage": "https://github.com/yhm138/dsh-codex-session-pin#readme",
+  "bugs": {
+    "url": "https://github.com/yhm138/dsh-codex-session-pin/issues"
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-api-workspace-controller",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "^3.18.4"
+  }
+}

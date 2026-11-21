@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Codex Session Pin",
+    "description": "Pin or unpin any Session from its header or from the sidebar session list; pinned Sessions lead their project. Still works when a third-party sidebar such as @michengai/dsh-codex-ui replaces the shipped one. Pin state is the official workspace pinnedSessionIds."
+  }
+}
