@@ -124,9 +124,27 @@ codex-session-pin, conversation-navigator-toggle, dsh-btw-header, turn-navigator
 
 隐藏规则的安全性也复核过：扫描 `node_modules` 下**除本包外**的所有 JS/MJS/CSS，没有任何插件使用 `dsp-mark` / `dsp-pin-btn` / `data-dsp-*`，所以那条 `display:none!important` 不会误伤别人（也查过 PerryLink 的 `dsh-session-pin@0.7.21`，它用的是 `data-board` / `data-color` / `data-session-id` 等，不冲突）。
 
+## 收录 PR 已提交（2026-11-22）
+
+仓库满 24 小时后（age 24.4h，脚本判定 `eligible to submit`）已提 PR：
+
+- PR：https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/17716
+- 改动：`data/plugins/yhm138__dsh-codex-session-pin.yml`，**+7 / -0**，只有一个文件
+- 分支：`yhm138:add/dsh-codex-session-pin` → `awesome-dsh-plugin:main`
+- 基线上游 HEAD：`d9701b3`（重新 clone 的最新 main，不是旧 fork）
+
+提交前的本地预演：
+
+- `readEntries()` 读到 12520 条，我们 1 条，`category: session`，中英描述齐全，同 url 无重复
+- `node scripts/generate-readme.mjs` 生成的中英两行都正确（链接与描述对得上）
+- README 的改动已 `git checkout` 丢弃，只提交 yml（CI 合并后自动重新生成）
+- 条目文件确认是无 BOM 的 UTF-8（终端显示乱码是 PowerShell 编码问题，不是文件问题）
+
+CI 首轮进展：checkout / npm ci / stale-fork guard / 扩展名 / 路径 / README 对账 / awesome-lint / 四组测试 / published npm identity —— **前 15 步全部 success**，第 16 步 Build 在跑（1.2 万条目站点构建，慢属正常）。
+
 ## 待办（定时任务会推进）
 
-- [ ] 等 `2026-11-22T05:46:36Z` 之后提 PR：`data/plugins/yhm138__dsh-codex-session-pin.yml`
+- [x] 仓库满 1 天后提 PR：已完成，PR #17716
 - [ ] 跟进 PR CI 与 reviewer 意见
 - [ ] 收录后停掉定时任务
 - [ ] 可在下个版本移除那条 `data-dsp-*` 隐藏规则（只为兼容改名前的旧页面，已无必要）
