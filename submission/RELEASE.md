@@ -142,6 +142,24 @@ codex-session-pin, conversation-navigator-toggle, dsh-btw-header, turn-navigator
 
 CI 首轮进展：checkout / npm ci / stale-fork guard / 扩展名 / 路径 / README 对账 / awesome-lint / 四组测试 / published npm identity —— **前 15 步全部 success**，第 16 步 Build 在跑（1.2 万条目站点构建，慢属正常）。
 
+## CI 结果（2026-11-22 14:42 北京时间）
+
+PR #17716 的两项检查**全部通过**：
+
+- check —— **pass**，耗时 30m20s（workflow run 44992663140）
+- Submission gate —— **pass**
+
+第 16 步 Build（1.2 万条目站点构建）跑完，整轮 CI 于 2026-11-22T06:42:31Z 以 success 结束。
+
+PR 当前：OPEN、MERGEABLE、无 review 意见、无 label、无 assignee —— 即**在等维护者审阅**。
+
+## 还要等多久（2026-11-22 18:29 核查）
+
+- 仓库现有 **495 个 open PR**；我们这条按创建时间排第 60 新，即还有 59 条比我们新的排在前面。
+- 上游最后一次提交是 2026-11-21T23:19:47Z（约 11 小时前），说明维护者这段时间没有合并动作。
+- 结论：CI 已过，剩下纯人工审阅，不属于我们能推进的部分。目录维护者明确写过评审要「实际阅读目标仓库」，所以不会瞬间过。
+
+**此阶段不要做的事**：不要重开 PR、不要修改已发布的 npm 版本、不要在 PR 里催促——都会被当作噪音。
 ## 待办（定时任务会推进）
 
 - [x] 仓库满 1 天后提 PR：已完成，PR #17716
