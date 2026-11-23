@@ -15,13 +15,22 @@ const INDEXES = [
   'https://awesome-dsh-plugin.com/index.json',
 ]
 
+// A cache-busting query is part of the request, not an optimisation: the site
+// index is served through a CDN with a 10-minute TTL and jsDelivr caches for
+// hours, so an unbusted read reports "not listed" for a while after a merge.
+// The entry was in the index at 06:14 and an unbusted read still returned the
+// previous generation, which is exactly the false negative this guards against.
 async function fetchJson(url, timeoutMs = 20000) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const response = await fetch(url, { signal: controller.signal, headers: { 'cache-control': 'no-cache' } })
+    const bust = `${url.includes('?') ? '&' : '?'}_=${Date.now()}`
+    const response = await fetch(`${url}${bust}`, {
+      signal: controller.signal,
+      headers: { 'cache-control': 'no-cache', pragma: 'no-cache' },
+    })
     if (!response.ok) return { ok: false, status: response.status }
-    return { ok: true, body: await response.json() }
+    return { ok: true, body: await response.json(), lastModified: response.headers.get('last-modified') }
   } catch (error) {
     return { ok: false, error: String((error && error.message) || error) }
   } finally {
@@ -61,7 +70,7 @@ lines.push(ageLine)
 // 3. Catalog indexes
 for (const url of INDEXES) {
   const label = url.replace(/^https?:\/\//, '').split('/')[0]
-  const index = await fetchJson(url, 45000)
+  const index = await fetchJson(url, 60000)
   if (!index.ok) {
     lines.push(`catalog ${label.padEnd(9)}: unavailable (${index.status ?? index.error})`)
     continue
@@ -69,11 +78,12 @@ for (const url of INDEXES) {
   checkedIndexes += 1
   const plugins = index.body.plugins || []
   const hit = plugins.find((plugin) => plugin.name === PKG || String(plugin.repository?.url || '').includes(REPO))
+  const stamp = index.lastModified === null ? '' : ` [source ${index.lastModified}]`
   if (hit) {
     listedIn += 1
-    lines.push(`catalog ${label.padEnd(9)}: LISTED as ${hit.title ?? hit.name} [${hit.metadata?.category ?? '?'}]`)
+    lines.push(`catalog ${label.padEnd(9)}: LISTED as ${hit.title ?? hit.name} [${hit.metadata?.category ?? '?'}] v${hit.versions?.[0]?.version ?? '?'}${stamp}`)
   } else {
-    lines.push(`catalog ${label.padEnd(9)}: not listed (${plugins.length} entries scanned)`)
+    lines.push(`catalog ${label.padEnd(9)}: not listed (${plugins.length} entries scanned)${stamp}`)
   }
 }
 

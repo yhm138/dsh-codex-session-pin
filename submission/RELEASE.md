@@ -160,11 +160,44 @@ PR 当前：OPEN、MERGEABLE、无 review 意见、无 label、无 assignee —�
 - 结论：CI 已过，剩下纯人工审阅，不属于我们能推进的部分。目录维护者明确写过评审要「实际阅读目标仓库」，所以不会瞬间过。
 
 **此阶段不要做的事**：不要重开 PR、不要修改已发布的 npm 版本、不要在 PR 里催促——都会被当作噪音。
+
+## 已收录（2026-11-23）
+
+**结论：已收录。** PR #17716 于 `2026-11-22T16:53:27Z` 合并；次日 nightly 构建（2026-11-23 02:30Z 启动，06:14 完成）跑完后索引刷新。
+
+| 通道 | 状态 | 取证 |
+| --- | --- | --- |
+| `awesome-dsh-plugin.com/index.json` | **LISTED** | 抓到条目：`name=dsh-codex-session-pin`、`title=yhm138/dsh-codex-session-pin`、`category=session`、`v1.0.2`、`homepage=…/p/yhm138/dsh-codex-session-pin/`、`engines.dsh=>=0.2.1-rc.2 <0.3.0-0`；`last-modified: Mon, 23 Nov 2026 06:14:44 GMT`；索引 6717 条 |
+| 插件详情页 | 已上线 | `https://awesome-dsh-plugin.com/p/yhm138/dsh-codex-session-pin/` → HTTP 200 |
+| README（main） | 已生成 | 仓库内 `README.md` 有那一行，`git clone` 复核 |
+| npm `dsh-plugin-catalog` | 已发布 `2026.1123.26272` | 从 registry 拉 tarball 解包，包内 `index.json` 6717 条且含我们；`dist-tags.latest` 已指向它 |
+| jsDelivr 定点版本号 `…@2026.1123.26272/index.json` | 已有我们 | 带版本号可绕过 CDN 缓存 |
+| jsDelivr 无版本号 `…/index.json` | 暂时仍是旧版 6554 条 | CDN `max-age=604800` / `s-maxage=43200`，查询时 `age=16654` 秒；等 s-maxage 过期自动更新，**无需任何操作** |
+
+`bruc3van.com/dsh-plugins/index.json` 未收录：那是 dsh-market-pro.com（Bruce 的独立精选，数据来自 awesome-dsh-plugin-pro），与本次提交的目录不是同一个项目，需单独投稿。
+
+### 检查脚本的真实缺陷（已修）
+
+首轮检查误报「未收录」：`check-listing.mjs` 请求 CDN 时未带 cache-busting，读到 10 分钟 TTL 内的旧副本（6554 条），而实际已是 6717 条。已改为每次请求附带 `?_=<时间戳>` 并输出 `last-modified`。
+
+**教训**：CDN 缓存造成的假阴性在这个项目上真实发生过两次。判断「没生效」之前必须换不缓存的通道复核——这次用的是 registry 直连 + tarball 解包 + 站点 `last-modified` 三重交叉。
+
+### 维护者对描述的改动（需要后续处理）
+
+合并后的条目里，英文描述被维护者补了一句：
+
+> Its HTTP routes have no DSH access check, so a web page open in your browser could call them.
+
+这是评审做的**安全披露**，不是打回。事实成立：`/codex-session-pin/state`、`/toggle`、`/diag`、`/command` 四条路由没有 DSH 的访问检查，同机浏览器中打开的任意页面理论上都能调用——`/toggle` 能改置顶状态；`/diag` 与 `/command` 在 probe 关闭时只回 204、不写文件。
+
+**这是一个真实缺陷，应在后续版本修掉**（例如校验请求来自 DSH 页面，或让写操作要求一次性凭据）。当前不影响主要功能，但不能当成误报。
+
 ## 待办（定时任务会推进）
 
 - [x] 仓库满 1 天后提 PR：已完成，PR #17716
-- [ ] 跟进 PR CI 与 reviewer 意见
-- [ ] 收录后停掉定时任务
+- [x] 跟进 PR CI 与 reviewer 意见：CI 全过，已合并
+- [x] 收录后停掉定时任务：已停（目标达成）
+- [ ] **修那道安全披露指出的问题**：给 HTTP 路由加访问校验，发 1.0.3
 - [ ] 可在下个版本移除那条 `data-dsp-*` 隐藏规则（只为兼容改名前的旧页面，已无必要）
 
 ## 文件位置
